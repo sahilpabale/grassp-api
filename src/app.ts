@@ -39,7 +39,7 @@ class App {
   }
 
   private initializeMiddlewares() {
-    this.app.use(morgan('combined', { stream }));
+    this.app.use(morgan('dev', { stream }));
     this.app.use(cors({ origin: '*', credentials: CREDENTIALS }));
     this.app.use(hpp());
     this.app.use(helmet());
