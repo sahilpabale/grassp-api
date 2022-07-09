@@ -2,16 +2,108 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+  provider             = "mysql"
+  url                  = env("DATABASE_URL")
+  shadowDatabaseUrl    = env("SHADOW_DATABASE_URL")
+  referentialIntegrity = "prisma"
 }
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["referentialIntegrity"]
 }
 
-model User {
-  id       Int    @id @default(autoincrement())
-  email    String @unique
-  password String
+model Users {
+  id              String               @id @default(uuid())
+  email           String               @unique @db.VarChar(255)
+  password        String
+  username        String
+  fullName        String               @db.VarChar(255)
+  bio             String               @db.Text
+  profileImg      String               @db.VarChar(255)
+  isVerified      Boolean              @default(false)
+  achievement     Achievements?
+  interests       Interests[]          @relation("UsersInterests")
+  badges          Badges[]             @relation("UsersBadges")
+  modules         Modules[]            @relation("Bookmarks")
+  modulesProgress UserModuleProgress[]
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+}
+
+model Achievements {
+  id                  String   @id @default(uuid())
+  coins               Int      @default(0)
+  streak              Int      @default(0)
+  total_learning_time Float
+  user                Users    @relation(fields: [userId], references: [id])
+  userId              String   @unique
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model Interests {
+  id        String   @id @default(uuid())
+  name      String   @unique @db.VarChar(255)
+  users     Users[]  @relation("UsersInterests")
+  module    Modules?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Badges {
+  id        String   @id @default(uuid())
+  title     String   @db.VarChar(255)
+  image     String   @db.VarChar(255)
+  users     Users[]  @relation("UsersBadges")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Modules {
+  id            String               @id @default(uuid())
+  interest      String               @unique
+  Interest      Interests            @relation(fields: [interest], references: [name])
+  title         String               @db.VarChar(255)
+  totalCards    Int
+  thumbnail     String               @db.VarChar(255)
+  timeToLearn   Int
+  shareLink     String               @db.VarChar(255)
+  difficulty    Difficulty
+  cards         Cards[]
+  users         Users[]              @relation("Bookmarks")
+  usersProgress UserModuleProgress[]
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+}
+
+model Cards {
+  id        String   @id @default(uuid())
+  moduleId  String   @unique
+  module    Modules  @relation(fields: [moduleId], references: [id])
+  title     String   @db.VarChar(255)
+  content   String   @db.Text
+  order     Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model UserModuleProgress {
+  user       Users    @relation(fields: [userId], references: [id])
+  userId     String
+  module     Modules  @relation(fields: [moduleId], references: [id])
+  moduleId   String
+  timeTaken  Int
+  cardsRead  Int
+  isFinished Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@id([userId, moduleId])
+}
+
+enum Difficulty {
+  Beginner
+  Intermediate
+  Advanced
 }
