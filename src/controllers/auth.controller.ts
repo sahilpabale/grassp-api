@@ -1,16 +1,16 @@
 import { NextFunction, Request, Response } from 'express';
-import { User } from '@prisma/client';
-import { CreateUserDto } from '@dtos/users.dto';
 import { RequestWithUser } from '@interfaces/auth.interface';
 import AuthService from '@services/auth.service';
+import { verify } from 'jsonwebtoken';
+import { HttpException } from '@/exceptions/HttpException';
 
 class AuthController {
   public authService = new AuthService();
 
   public signUp = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const userData: CreateUserDto = req.body;
-      const signUpUserData: User = await this.authService.signup(userData);
+      const userData = req.body;
+      const signUpUserData = await this.authService.signup(userData);
 
       res.status(201).json({ data: signUpUserData, message: 'signup' });
     } catch (error) {
@@ -20,23 +20,37 @@ class AuthController {
 
   public logIn = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const userData: CreateUserDto = req.body;
-      const { cookie, findUser } = await this.authService.login(userData);
+      const userData = req.body;
+      const { token } = await this.authService.login(userData);
 
-      res.setHeader('Set-Cookie', [cookie]);
-      res.status(200).json({ data: findUser, message: 'login' });
+      res.status(200).json({ data: token, message: 'login' });
     } catch (error) {
       next(error);
     }
   };
 
-  public logOut = async (req: RequestWithUser, res: Response, next: NextFunction): Promise<void> => {
+  public emailExists = async (req: RequestWithUser, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const userData: User = req.user;
-      const logOutUserData: User = await this.authService.logout(userData);
+      const exists = await this.authService.emailExists(req.params.email);
 
-      res.setHeader('Set-Cookie', ['Authorization=; Max-age=0']);
-      res.status(200).json({ data: logOutUserData, message: 'logout' });
+      res.status(200).json({ data: exists });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public verifyEmail = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const { token } = req.params;
+      const decoded: any = verify(token, 'GRASSPEMAILVERIFICATION');
+
+      const userId: string = decoded.userId;
+
+      const userVerify = await this.authService.verifyUserByEmail(userId);
+
+      if (!userVerify) throw new HttpException(400, 'Sorry failed to verify you :(', {});
+
+      res.status(200).send(`You are verified successfully`);
     } catch (error) {
       next(error);
     }

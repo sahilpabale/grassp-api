@@ -13,8 +13,13 @@ const validationMiddleware = (
   return (req, res, next) => {
     validate(plainToClass(type, req[value]), { skipMissingProperties, whitelist, forbidNonWhitelisted }).then((errors: ValidationError[]) => {
       if (errors.length > 0) {
+        const missing = [];
+        errors.map(error => {
+          missing.push(error.property);
+        });
         const message = errors.map((error: ValidationError) => Object.values(error.constraints)).join(', ');
-        next(new HttpException(400, message));
+
+        next(new HttpException(400, message, { code: 'NO_REQ_DATA', missing }));
       } else {
         next();
       }
