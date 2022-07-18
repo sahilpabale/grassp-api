@@ -29,6 +29,40 @@ class AuthController {
     }
   };
 
+  public getLoggedInUser = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      res.status(200).json({ data: req.user, message: 'user' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public updateProfile = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const { id } = req.user;
+      const data = req.body;
+
+      const update = await this.authService.updateUserProfile(data, id);
+
+      res.status(200).json({ data: update, message: 'updateProfile' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public updateInterests = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const { id } = req.user;
+      const { interests } = req.body;
+
+      const update = await this.authService.updateUserInterests(interests, id);
+
+      res.status(200).json({ data: update, message: 'updateInterests' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
   public emailExists = async (req: RequestWithUser, res: Response, next: NextFunction): Promise<void> => {
     try {
       const exists = await this.authService.emailExists(req.params.email);

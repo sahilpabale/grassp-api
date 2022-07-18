@@ -1,6 +1,6 @@
 import { compare, hash } from 'bcrypt';
 import { sign } from 'jsonwebtoken';
-import { PrismaClient, Prisma, Users } from '@prisma/client';
+import { Prisma, Users } from '@prisma/client';
 import { HOST_URL, SECRET_KEY, SENDINBLUE_API_KEY } from '@config';
 import { CreateUserDto, LoginUserDto } from '@dtos/users.dto';
 import { HttpException } from '@exceptions/HttpException';
@@ -8,11 +8,12 @@ import { DataStoredInToken, TokenData } from '@interfaces/auth.interface';
 import { isEmpty } from '@utils/util';
 import constants from '@utils/constants';
 import axios from 'axios';
+import prisma from '@/lib/prisma';
 
 const { signUpFail, loginFail, noReqData } = constants;
 class AuthService {
-  public users = new PrismaClient().users;
-  public interests = new PrismaClient().interests;
+  public users = prisma.users;
+  public interests = prisma.interests;
 
   public signup = async (userData: CreateUserDto): Promise<any> => {
     if (isEmpty(userData)) throw new HttpException(400, 'No user data in request body', { code: noReqData });
@@ -95,6 +96,71 @@ class AuthService {
     const tokenData = this.createToken(findUser);
 
     return { token: tokenData.token };
+  };
+
+  public updateUserProfile = async (userData: any, userId: string) => {
+    try {
+      const updateUser = await this.users.update({
+        where: {
+          id: userId,
+        },
+        data: userData,
+        select: {
+          id: true,
+        },
+      });
+
+      return updateUser;
+    } catch (error) {
+      return error;
+    }
+  };
+
+  public updateUserInterests = async (interests: string[], userId: string) => {
+    try {
+      const getInterests = await this.interests.findMany({
+        select: {
+          id: true,
+          name: true,
+        },
+      });
+
+      const newInterests = getInterests.filter(item => interests.includes(item.name));
+
+      const updateInterests = await this.users.update({
+        where: {
+          id: userId,
+        },
+        data: {
+          interests: {
+            set: [
+              {
+                id: newInterests[0].id,
+              },
+              {
+                id: newInterests[1].id,
+              },
+              {
+                id: newInterests[2].id,
+              },
+              {
+                id: newInterests[3].id,
+              },
+              {
+                id: newInterests[4].id,
+              },
+            ],
+          },
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      return updateInterests;
+    } catch (error) {
+      return error;
+    }
   };
 
   public verifyUserByEmail = async (userId: string): Promise<boolean> => {

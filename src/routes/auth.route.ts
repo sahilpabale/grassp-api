@@ -23,6 +23,14 @@ class AuthRoute implements Routes {
 
     this.router.get(`${this.path}/verify/:token`, this.authController.verifyEmail);
     // redirect to success landing page after verification
+
+    this.router.get(`${this.path}/user`, authMiddleware, this.authController.getLoggedInUser);
+
+    // update profile
+    this.router.put(`${this.path}/profile`, authMiddleware, this.authController.updateProfile);
+
+    // update interests
+    this.router.put(`${this.path}/interests`, authMiddleware, this.authController.updateInterests);
   }
 }
 
