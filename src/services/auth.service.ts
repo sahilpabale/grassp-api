@@ -77,6 +77,8 @@ class AuthService {
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
         throw new HttpException(400, 'This username is already taken', { code: signUpFail });
+      } else {
+        throw new Error(error.message);
       }
     }
   };
@@ -92,6 +94,8 @@ class AuthService {
     const isPasswordMatching: boolean = await compare(userData.password, findUser.password);
 
     if (!isPasswordMatching) throw new HttpException(400, 'Your password is incorrect!', { code: loginFail });
+
+    if (!findUser.isVerified) throw new HttpException(400, `Your account ${userData.email} is not yet verified!`, { code: loginFail });
 
     const tokenData = this.createToken(findUser);
 
@@ -260,7 +264,6 @@ Grassp Team!
       );
       return response.data;
     } catch (error) {
-      console.log(error);
       throw new HttpException(500, 'Failed to send email', { code: 'FAILED_EMAIL' });
     }
   };
