@@ -28,9 +28,6 @@ class AuthRoute implements Routes {
 
     // update profile
     this.router.put(`${this.path}/profile`, authMiddleware, this.authController.updateProfile);
-
-    // update interests
-    this.router.put(`${this.path}/interests`, authMiddleware, this.authController.updateInterests);
   }
 }
 

@@ -26,30 +26,30 @@ model Users {
 }
 
 model Interests {
-  id        String   @id @default(uuid())
-  name      String   @unique
+  id        String    @id @default(uuid())
+  name      String    @unique
   title     String
-  users     Users[]  @relation("UsersInterests")
-  module    Modules?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  users     Users[]   @relation("UsersInterests")
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  modules   Modules[]
 }
 
 model Modules {
   id            String               @id @default(uuid())
-  interest      String               @unique
-  Interest      Interests            @relation(fields: [interest], references: [name])
   title         String               @db.VarChar(255)
   difficulty    Difficulty
   cards         Cards[]
   usersProgress UserModuleProgress[]
   createdAt     DateTime             @default(now())
   updatedAt     DateTime             @updatedAt
+  interest      Interests            @relation(fields: [interestId], references: [name])
+  interestId    String
 }
 
 model Cards {
   id        String   @id @default(uuid())
-  moduleId  String   @unique
+  moduleId  String
   module    Modules  @relation(fields: [moduleId], references: [id])
   title     String   @db.VarChar(255)
   content   String   @db.Text
