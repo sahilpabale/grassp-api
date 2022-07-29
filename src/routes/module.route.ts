@@ -3,6 +3,7 @@ import { Routes } from '@interfaces/routes.interface';
 import authMiddleware from '@middlewares/auth.middleware';
 import validationMiddleware from '@middlewares/validation.middleware';
 import ModuleController from '@/controllers/module.controller';
+import { CreateCard, CreateModule } from '@/dtos/modules.dtos';
 
 class ModuleRoute implements Routes {
   public singularPath = '/module';
@@ -22,7 +23,9 @@ class ModuleRoute implements Routes {
     // get cards by module id
     this.router.get(`${this.cardsPath}/:moduleId`, authMiddleware, this.moduleController.getCardsByModules);
     // create a module
-    this.router.post(`${this.singularPath}/`, authMiddleware, this.moduleController.createModule);
+    this.router.post(`${this.singularPath}/`, authMiddleware, validationMiddleware(CreateModule, 'body'), this.moduleController.createModule);
+    // create a card
+    this.router.post(`${this.cardPath}/:moduleId`, authMiddleware, validationMiddleware(CreateCard, 'body'), this.moduleController.createCard);
   }
 }
 

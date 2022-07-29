@@ -44,6 +44,22 @@ class ModuleController {
       next(error);
     }
   };
+
+  public createCard = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const creator = req.headers.creator as string;
+      if (creator !== 'sahil') {
+        throw new HttpException(400, 'Not a creator', {});
+      } else {
+        const { title, content, order } = req.body;
+        const { moduleId } = req.params;
+        const card = await this.moduleService.createCard(title, content, order, moduleId);
+        res.status(201).json({ data: card, message: 'createCard' });
+      }
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 
 export default ModuleController;

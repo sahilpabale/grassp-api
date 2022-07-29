@@ -68,6 +68,23 @@ class ModuleService {
       return error;
     }
   };
+
+  public createCard = async (title: string, content: string, order: number, moduleId: string) => {
+    try {
+      const card = await this.cards.create({
+        data: {
+          moduleId,
+          title,
+          content,
+          order,
+        },
+      });
+      return card;
+    } catch (error) {
+      console.log(`Error in ModuleService.createCard: ${error}`);
+      return error;
+    }
+  };
 }
 
 export default ModuleService;
