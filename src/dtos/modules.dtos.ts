@@ -20,4 +20,7 @@ export class CreateCard {
 
   @IsNumber()
   public order: number;
+
+  @IsString()
+  public link: string;
 }

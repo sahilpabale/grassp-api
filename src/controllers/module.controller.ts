@@ -2,6 +2,7 @@ import { RequestWithUser } from '@/interfaces/auth.interface';
 import { NextFunction, Response } from 'express';
 import ModuleService from '@services/module.service';
 import { HttpException } from '@/exceptions/HttpException';
+import { logger } from '@/utils/logger';
 
 class ModuleController {
   public moduleService = new ModuleService();
