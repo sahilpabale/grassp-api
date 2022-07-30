@@ -54,6 +54,7 @@ model Cards {
   title     String   @db.VarChar(255)
   content   String   @db.Text
   order     Int
+  link      String?  @db.Text
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

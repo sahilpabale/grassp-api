@@ -51,11 +51,23 @@ class ModuleController {
       if (creator !== 'sahil') {
         throw new HttpException(400, 'Not a creator', {});
       } else {
-        const { title, content, order } = req.body;
+        const { title, content, order, link } = req.body;
         const { moduleId } = req.params;
-        const card = await this.moduleService.createCard(title, content, order, moduleId);
+        const card = await this.moduleService.createCard(title, content, order, moduleId, link);
         res.status(201).json({ data: card, message: 'createCard' });
       }
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public moduleCompleted = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const { id } = req.user;
+      const { moduleId } = req.params;
+
+      const progressMarked = await this.moduleService.markModuleAsComplete(id, moduleId);
+      res.status(201).json({ data: progressMarked, message: 'moduleCompleted' });
     } catch (error) {
       next(error);
     }

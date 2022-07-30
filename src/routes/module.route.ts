@@ -26,6 +26,8 @@ class ModuleRoute implements Routes {
     this.router.post(`${this.singularPath}/`, authMiddleware, validationMiddleware(CreateModule, 'body'), this.moduleController.createModule);
     // create a card
     this.router.post(`${this.cardPath}/:moduleId`, authMiddleware, validationMiddleware(CreateCard, 'body'), this.moduleController.createCard);
+    // mark module completed
+    this.router.post(`${this.singularPath}/complete/:moduleId`, authMiddleware, this.moduleController.moduleCompleted);
   }
 }
 

@@ -7,6 +7,7 @@ class ModuleService {
   // public users = prisma.users;
   public modules = prisma.modules;
   public cards = prisma.cards;
+  public userProgress = prisma.userModuleProgress;
 
   public getModulesByInterest = async (interestId: string) => {
     try {
@@ -34,6 +35,7 @@ class ModuleService {
           title: true,
           content: true,
           order: true,
+          link: true,
         },
       });
 
@@ -69,7 +71,7 @@ class ModuleService {
     }
   };
 
-  public createCard = async (title: string, content: string, order: number, moduleId: string) => {
+  public createCard = async (title: string, content: string, order: number, moduleId: string, link: string) => {
     try {
       const card = await this.cards.create({
         data: {
@@ -77,11 +79,27 @@ class ModuleService {
           title,
           content,
           order,
+          link,
         },
       });
       return card;
     } catch (error) {
       console.log(`Error in ModuleService.createCard: ${error}`);
+      return error;
+    }
+  };
+
+  public markModuleAsComplete = async (userId: string, moduleId: string) => {
+    try {
+      const progressMarked = await this.userProgress.create({
+        data: {
+          userId,
+          moduleId,
+        },
+      });
+      return progressMarked;
+    } catch (error) {
+      console.log(`Error in ModuleService.markModuleAsComplete: ${error}`);
       return error;
     }
   };
