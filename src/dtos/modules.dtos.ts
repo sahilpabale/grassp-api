@@ -8,7 +8,7 @@ export class CreateModule {
   public title: string;
 
   @IsString()
-  public description: string;
+  public difficulty: string;
 }
 
 export class CreateCard {
