@@ -91,13 +91,30 @@ class ModuleService {
 
   public markModuleAsComplete = async (userId: string, moduleId: string) => {
     try {
-      const progressMarked = await this.userProgress.create({
-        data: {
-          userId,
-          moduleId,
-        },
-      });
-      return progressMarked;
+      const isFinished = (
+        await this.userProgress.findUnique({
+          where: {
+            userId_moduleId: {
+              userId,
+              moduleId,
+            },
+          },
+          select: {
+            isFinished: true,
+          },
+        })
+      ).isFinished;
+      if (!isFinished) {
+        const progressMarked = await this.userProgress.create({
+          data: {
+            userId,
+            moduleId,
+            isFinished: true,
+          },
+        });
+        return progressMarked;
+      }
+      return true;
     } catch (error) {
       console.log(`Error in ModuleService.markModuleAsComplete: ${error}`);
       return error;
