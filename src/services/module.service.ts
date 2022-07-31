@@ -91,19 +91,18 @@ class ModuleService {
 
   public markModuleAsComplete = async (userId: string, moduleId: string) => {
     try {
-      const isFinished = (
-        await this.userProgress.findUnique({
-          where: {
-            userId_moduleId: {
-              userId,
-              moduleId,
-            },
+      const isFinished = await this.userProgress.findUnique({
+        where: {
+          userId_moduleId: {
+            userId,
+            moduleId,
           },
-          select: {
-            isFinished: true,
-          },
-        })
-      ).isFinished;
+        },
+        select: {
+          isFinished: true,
+        },
+      });
+
       if (!isFinished) {
         const progressMarked = await this.userProgress.create({
           data: {
